@@ -80,6 +80,42 @@ K = [
 ]
 
 
+def constant_generator():
+    def is_prime(n:int)->bool:
+        if n < 2: return False
+        if n in (2, 3): return True
+        if n % 2 == 0 or n % 3 == 0: return False
+        i = 5
+        while i * i <= n:
+            if n % i == 0 or n % (i + 2) == 0: return False
+            i += 6
+        return True
+    def first_prime(n:int):
+        i = 2
+        while n:
+            if is_prime(i): 
+                yield i
+                n-=1
+            i+=1
+
+    def sqrt(n:int)->int: return n**(1/2)
+    def cbrt(n:int)->int: return n**(1/3)
+    def fractionalpart(x:int)->float:
+        assert x>=0, "not implemented for negative"
+        return x - x//1
+
+    H = []
+    K = []
+    for p in first_prime(8):
+        f = fractionalpart(sqrt(p))
+        H.append(int(f * (1 << 32)))
+    for p in first_prime(64):
+        f = fractionalpart(cbrt(p))
+        K.append(int(f * (1 << 32)))
+    return H, K
+
+H, K = constant_generator()
+
 def sha256(data):
     h0, h1, h2, h3, h4, h5, h6, h7 = H
         
