@@ -20,36 +20,44 @@ class BasicSymmetricKeyEncrpter:
     def encrypt_chunk(self, chunk, key):
         return bytes(a ^ b for a, b in zip(chunk, cycle(key)))
     
-    def chunk_iter(self, msg):
-        for i in range(0, len(msg), self.key_len):
-            yield msg[i:i+self.key_len]
-
     @staticmethod
     def new_key(old_key, data_last):
-        result_key = bytearray(b for b in sha256(old_key + data_last)[2:2+len(old_key)].encode())
+        # print(bytes.fromhex(sha256(old_key + data_last)[2:]))
+        # result_key = bytearray(b for b in sha256(old_key + data_last)[2:].encode())
+        result_key = bytes.fromhex(sha256(old_key + data_last)[2:])
         return result_key
     
     def encrypt(self, data):
         data = data
         result = b''
         key = self.key
-        for chunk in self.chunk_iter(data):
+        data_len = len(data)
+        i = 0
+        while data_len > 0:
+            chunk = data[i:i+len(key)]
+            i+=len(key)
             result += self.encrypt_chunk(chunk, key)
+            data_len -= len(key)
             key = self.new_key(key, chunk)
         return result
     
     def decrypt(self, data):
         result = b''
         key = self.key
-        for chunk in self.chunk_iter(data):
+        data_len = len(data)
+        i = 0
+        while data_len > 0:
+            chunk = data[i:i+len(key)]
+            i+=len(key)
             decrypted = self.encrypt_chunk(chunk, key)
             result += decrypted
+            data_len -= len(key)
             key = self.new_key(key, decrypted)
         return result
 
 if __name__ == '__main__':
     
-    original_data = b'Hello, My...'*1024
+    original_data = b'Hello, My...'*100
     
     encrpter = BasicSymmetricKeyEncrpter.from_random_key(key_len=256)
     encrypted_data = encrpter.encrypt(original_data)
@@ -57,8 +65,8 @@ if __name__ == '__main__':
     
     assert (original_data == decrypted_data)
     
-    with open('basicSymmetricKeyEncryption.crypt', 'wb') as f:
-        f.write(encrypted_data)
+    # with open('basicSymmetricKeyEncryption.crypt', 'wb') as f:
+        # f.write(encrypted_data)
     
     print(f"LEN[{len(original_data)}] original_data : ", original_data)
     print(f"LEN[{len(encrypted_data)}] encrypted_data : ", encrypted_data)
