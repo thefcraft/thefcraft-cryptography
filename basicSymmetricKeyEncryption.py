@@ -7,16 +7,9 @@ def sha256(x):
     # return minesha256(x)
     return hashlibsha256(x).hexdigest()
 
-def rotate(x, n, t=32):
-    """clockwise rotate a t-bit integer to n positions"""
-    return (x >> n) | (x << (t - n))
-def rotate_anti(x, n, t=32):
-    """anti clockwise rotate a t-bit integer to n positions"""
-    return (x << n) | (x >> (t - n))
 
 class BasicSymmetricKeyEncrpter:
     def __init__(self, key) -> None:
-        assert len(key)%4 == 0 and len(key)>=12, "key len must be multiple of 4 and greater than or equal to 12"
         self.key = key
         self.key_len = len(key)
         
@@ -56,9 +49,9 @@ class BasicSymmetricKeyEncrpter:
 
 if __name__ == '__main__':
     
-    original_data = b'Hello, My...'*12
+    original_data = b'Hello, My...'*1024
     
-    encrpter = BasicSymmetricKeyEncrpter.from_random_key(key_len=12)
+    encrpter = BasicSymmetricKeyEncrpter.from_random_key(key_len=256)
     encrypted_data = encrpter.encrypt(original_data)
     decrypted_data = encrpter.decrypt(encrypted_data)
     
