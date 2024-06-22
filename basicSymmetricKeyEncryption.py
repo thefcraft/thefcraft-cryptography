@@ -58,8 +58,8 @@ if __name__ == '__main__':
     
     assert (original_data == decrypted_data)
     
-    with open('basicSymmetricKeyEncryption.crypt', 'wb') as f:
-        f.write(encrypted_data)
+    # with open('basicSymmetricKeyEncryption.crypt', 'wb') as f:
+        # f.write(encrypted_data)
     
     print(f"LEN[{len(original_data)}] original_data : ", original_data)
     print(f"LEN[{len(encrypted_data)}] encrypted_data : ", encrypted_data)
