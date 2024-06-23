@@ -1,23 +1,41 @@
 import random, math
-from typing import Optional
 
-def is_prime(n:int)->bool:
-    # if n<2: return False
-    # for i in range(2, math.floor(math.sqrt(n))+1): 
-        # if(n % i == 0): return False
-    # return True
-    if n < 2: return False
-    if n in (2, 3): return True
-    if n % 2 == 0 or n % 3 == 0: return False
-    i = 5
-    while i * i <= n:
-        if n % i == 0 or n % (i + 2) == 0: return False
-        i += 6
+
+def is_prime(n, k=20):
+    """Miller-Rabin primality test."""
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0:
+        return False
+
+    # Write n-1 as 2^r * d where d is odd
+    r, d = 0, n - 1
+    while d % 2 == 0:
+        r += 1
+        d //= 2
+
+    # Witness loop
+    for _ in range(k):
+        a = random.randint(2, n - 2)
+        x = pow(a, d, n)
+        if x == 1 or x == n - 1:
+            continue
+        for _ in range(r - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            return False
     return True
-def prime_number_greater_than(n:int)->int:
+
+def generate_prime(bits=256):
+    """Generate a random prime number of 'bits' length."""
     while True:
-        if is_prime(n): return n
-        n+=1
+        candidate = random.getrandbits(bits)
+        if is_prime(candidate):
+            return candidate
 
 def gcd(a:int, b:int)->int:
     # The Euclidean algorithm is based on the principle that the GCD of two numbers also divides their difference.
@@ -98,9 +116,11 @@ def cryptor(data:bytearray, key:int, n:int)->bytearray:
     return bytearray(result)
     
 class RSA:
-    def __init__(self)->None:
-        self.p = prime_number_greater_than(random.randint(1_000_000, 1_000_000_000))
-        self.q = prime_number_greater_than(random.randint(1_000_000, 1_000_000_000))
+    def __init__(self, p=None, q=None)->None:
+        self.p = p or generate_prime(bits=256)
+        self.q = q or generate_prime(bits=512)
+        # mod = lambda x: x if x>=0 else -x
+        # assert mod(self.p - self.q) > 1000_000_000, "gap between p and q are shoud be very large"
         assert self.p != self.q
         self.n = self.p*self.q
         self.phi = (self.p-1)*(self.q-1)
