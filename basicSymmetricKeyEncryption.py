@@ -1,6 +1,8 @@
-import secrets, struct
+import secrets
+# import struct
 from hashlib import sha256
-from itertools import cycle
+# from itertools import cycle
+# from tqdm import tqdm
 
 class BasicSymmetricKeyEncrpter:
     def __init__(self, key) -> None:
@@ -22,30 +24,34 @@ class BasicSymmetricKeyEncrpter:
         return bytearray(sha256(combined).digest())
     
     def encrypt(self, data):
-        data_len = len(data)
         result = bytearray()
-        key = self.key
-        
-        i = 0
-        while data_len > 0:
-            chunk = data[i:i+len(key)]
-            i+=len(key)
+    
+        # Process the initial chunk separately
+        initial_chunk = data[:self.key_len]
+        result.extend(self.encrypt_chunk(initial_chunk, self.key))
+        key = self.new_key(self.key, initial_chunk)
+
+        # Process the rest of the data in chunks of 32 bytes
+        for i in range(self.key_len, len(data), 32):
+            chunk = data[i:i+32]  # len(32) .. sha256
             result.extend(self.encrypt_chunk(chunk, key))
-            data_len -= len(key)
             key = self.new_key(key, chunk)
+        
         return result
     
     def decrypt(self, data):
         result = bytearray()
-        key = self.key
-        data_len = len(data)
-        i = 0
-        while data_len > 0:
-            chunk = data[i:i+len(key)]
-            i+=len(key)
+        
+        # Process the initial chunk separately
+        initial_chunk = data[:self.key_len]
+        result.extend(self.encrypt_chunk(initial_chunk, self.key))
+        key = self.new_key(self.key, result)
+
+        # Process the rest of the data in chunks of 32 bytes
+        for i in range(self.key_len, len(data), 32):
+            chunk = data[i:i+32]
             decrypted = self.encrypt_chunk(chunk, key)
             result.extend(decrypted)
-            data_len -= len(key)
             key = self.new_key(key, decrypted)
         return result
 
