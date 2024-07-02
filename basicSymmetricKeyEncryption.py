@@ -1,48 +1,42 @@
 import secrets, struct
-# from sha256 import sha256 as minesha256
-from hashlib import sha256 as hashlibsha256
+from hashlib import sha256
 from itertools import cycle
-
-def sha256(x):
-    # return minesha256(x)
-    return hashlibsha256(x).hexdigest()
-
 
 class BasicSymmetricKeyEncrpter:
     def __init__(self, key) -> None:
-        self.key = key
+        # self.key = key
+        self.key = bytearray(key)
         self.key_len = len(key)
         
     @classmethod
     def from_random_key(cls, key_len=32):
-        return BasicSymmetricKeyEncrpter(key = secrets.token_bytes(key_len))
+        return cls(key = secrets.token_bytes(key_len))
     
     def encrypt_chunk(self, chunk, key):
-        return bytes(a ^ b for a, b in zip(chunk, cycle(key)))
+        # return bytes(a ^ b for a, b in zip(chunk, cycle(key)))
+        return bytes(a ^ b for a, b in zip(chunk, key))
     
     @staticmethod
     def new_key(old_key, data_last):
-        # print(bytes.fromhex(sha256(old_key + data_last)[2:]))
-        # result_key = bytearray(b for b in sha256(old_key + data_last)[2:].encode())
-        result_key = bytes.fromhex(sha256(old_key + data_last)[2:])
-        return result_key
+        combined = old_key + data_last
+        return bytearray(sha256(combined).digest())
     
     def encrypt(self, data):
-        data = data
-        result = b''
-        key = self.key
         data_len = len(data)
+        result = bytearray()
+        key = self.key
+        
         i = 0
         while data_len > 0:
             chunk = data[i:i+len(key)]
             i+=len(key)
-            result += self.encrypt_chunk(chunk, key)
+            result.extend(self.encrypt_chunk(chunk, key))
             data_len -= len(key)
             key = self.new_key(key, chunk)
         return result
     
     def decrypt(self, data):
-        result = b''
+        result = bytearray()
         key = self.key
         data_len = len(data)
         i = 0
@@ -50,7 +44,7 @@ class BasicSymmetricKeyEncrpter:
             chunk = data[i:i+len(key)]
             i+=len(key)
             decrypted = self.encrypt_chunk(chunk, key)
-            result += decrypted
+            result.extend(decrypted)
             data_len -= len(key)
             key = self.new_key(key, decrypted)
         return result
