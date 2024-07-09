@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 
+// Compile using release flag e.g., cargo run --release or cargo r -r
 // Test File Size :- 36.2 MB
 // Time Taken in python :- 126077.307701ms
 // Time Taken in Rust :- 253.673ms 
