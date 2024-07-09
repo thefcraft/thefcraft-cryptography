@@ -57,7 +57,7 @@ fn int2vec(num: usize) -> Vec<u8>{
 
 fn preprocess(data: Vec<u8>) -> Vec<u8>{
     let length_bits = data.len()*8;
-    let mut result = data.clone();
+    let mut result = data;
     result.push(128); // 128 => b'\x80'
     while result.len() % 64 != 56 {
         result.push(0);
