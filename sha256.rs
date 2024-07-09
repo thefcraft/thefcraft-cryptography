@@ -1,5 +1,10 @@
 #![allow(non_snake_case)]
 
+// Test File Size :- 36.2 MB
+// Time Taken in python :- 126077.307701ms
+// Time Taken in Rust :- 253.673ms 
+// (300-500x faster then python approch)
+
 use std::fs::File;
 use std::io::Read;
 use std::time::Instant;
